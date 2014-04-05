@@ -17,8 +17,10 @@ import javax.ws.rs.ext.WriterInterceptorContext;
 public class ServerReaderWriter implements WriterInterceptor, ReaderInterceptor {
 
     @Override
-    public Object aroundReadFrom(ReaderInterceptorContext ct) throws IOException, WebApplicationException {
-        if (MediaType.APPLICATION_ATOM_XML_TYPE.equals(ct.getMediaType())) {
+    public Object aroundReadFrom(ReaderInterceptorContext ct) 
+    	throws IOException, WebApplicationException {
+        
+    	if (MediaType.APPLICATION_ATOM_XML_TYPE.equals(ct.getMediaType())) {
         	// invoke the next reader interceptor
             return ct.proceed();
         } else {
@@ -28,7 +30,9 @@ public class ServerReaderWriter implements WriterInterceptor, ReaderInterceptor 
     }
 
     @Override
-    public void aroundWriteTo(WriterInterceptorContext ct) throws IOException, WebApplicationException {
-        ct.proceed();
+    public void aroundWriteTo(WriterInterceptorContext ct) 
+        throws IOException, WebApplicationException {
+        ct.setMediaType(ct.getMediaType().withCharset("UTF-16"));
+    	ct.proceed();
     }
 }

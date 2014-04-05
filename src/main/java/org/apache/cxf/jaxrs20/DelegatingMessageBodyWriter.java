@@ -30,8 +30,13 @@ public class DelegatingMessageBodyWriter<T> implements MessageBodyWriter<T> {
     }
 
     @Override
-    public void writeTo(T object, Class<?> cls, Type t, Annotation[] anns,
-                        MediaType mt, MultivaluedMap<String, Object> headers, OutputStream os)
+    public void writeTo(T object, 
+    		            Class<?> cls, 
+    		            Type t, 
+    		            Annotation[] anns,
+                        MediaType mt, 
+                        MultivaluedMap<String, Object> headers, 
+                        OutputStream os)
         throws IOException, WebApplicationException {
         @SuppressWarnings("unchecked")
         MessageBodyWriter<T> writer = 

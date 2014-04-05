@@ -63,8 +63,8 @@ public class AsyncRootResource {
     
     /**
      * Invocation is suspended for 2 seconds. TimeoutHandler will be invoked
-     * when it is resumed, the handler will either postpone it again, or return the Book,
-     * or cancel the invocation (503 status, Retry-After)
+     * when it is resumed, the handler will either postpone it again, 
+     * or return the Book, or cancel the invocation (503 status, Retry-After)
      */
     @GET
     @Path("/book/{id}/timeout")

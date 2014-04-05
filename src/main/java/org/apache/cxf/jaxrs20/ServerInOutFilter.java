@@ -9,6 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.URI;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.NameBinding;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -19,7 +20,7 @@ import javax.ws.rs.core.Response;
 /**
  * ServerInOutFilter is a server in/out filter.
  * It will be bound only to those resource methods which have the 
- * InputStreamFiltered annotation.
+ * Filtered annotation (all methods in RootResource2).
  * 
  * The filter checks the security context, aborts the request if it is not set.
  * Otherwise it filters the input stream.
@@ -28,31 +29,36 @@ import javax.ws.rs.core.Response;
  * @author sberyozkin
  *
  */
-@ServerInOutFilter.InputStreamFiltered
+@ServerInOutFilter.Filtered
 public class ServerInOutFilter implements ContainerRequestFilter, 
     ContainerResponseFilter {
 
     @Target({ ElementType.TYPE, ElementType.METHOD })
     @Retention(value = RetentionPolicy.RUNTIME)
     @NameBinding
-    public @interface InputStreamFiltered { 
+    public @interface Filtered { 
     }
     
     @Override
-    public void filter(ContainerRequestContext in) throws IOException {
-        if (in.getSecurityContext().getUserPrincipal() == null) {
+    public void filter(ContainerRequestContext ct) throws IOException {
+        if (ct.getSecurityContext().getUserPrincipal() == null) {
             // abort the request
-        	in.abortWith(Response.seeOther(getSsoIdpAddress()).build());
+        	ct.abortWith(Response.seeOther(getSsoIdpAddress()).build());
             return;
         }
-        InputStream is = in.getEntityStream();
-        in.setEntityStream(new FilterInputStream(is) {
-        });
+        String httpMethod = ct.getMethod();
+        if (HttpMethod.POST.equals(httpMethod) 
+        	|| HttpMethod.PUT.equals(httpMethod)) {
+	        InputStream is = ct.getEntityStream();
+	        ct.setEntityStream(new FilterInputStream(is) {
+	        });
+        }
     }
 
     @Override
-    public void filter(ContainerRequestContext in, ContainerResponseContext out) throws IOException {
-        Object entity = out.getEntity();
+    public void filter(ContainerRequestContext ctIn, ContainerResponseContext ctOut) 
+    	throws IOException {
+        Object entity = ctOut.getEntity();
         if (entity instanceof Book) {
             ((Book)entity).setName("name updated");
         }

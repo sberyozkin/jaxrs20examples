@@ -26,10 +26,14 @@ import javax.ws.rs.core.StreamingOutput;
  * Note: it has the same Path as RootResource: JAX-RS 2.0 ensures no ambiguity
  * exists in this case.
  * 
+ * It can have the global global or filters with @ServerInOutFilter.Filtered name binding
+ * bound to all of its methods (JAX-RS 2.0)
+ * 
  * @author sberyozkin
  *
  */
 @Path("/root")
+@ServerInOutFilter.Filtered
 public class RootResource2 {
     // Map of ETags, key - is the Book id
 	private Map<Long, EntityTag> etags = new ConcurrentHashMap<Long, EntityTag>();
