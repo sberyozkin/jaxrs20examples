@@ -10,11 +10,14 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.AsyncInvoker;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.client.ResponseProcessingException;
+import javax.ws.rs.client.SyncInvoker;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -27,24 +30,31 @@ import javax.ws.rs.ext.MessageBodyReader;
  */
 public class ClientApi {
      
-    public void getBook() {
+	public void getBook() {
         String address = "http://localhost:8080/bookstore/";
+        //Client:
         Client client = ClientBuilder.newClient();
-        Book book = client.target(address)
-                    .request("application/json")
-                    .get(Book.class);
+        //WebTarget:
+        WebTarget target = client.target(address);
+        //SyncInvoker (Invocation.Builder)
+        SyncInvoker invoker = target.request("application/json");
+        // Result
+        Book book = invoker.get(Book.class);
         System.out.println(book.getName());
     }
     
     public void getBookResponse() {
         String address = "http://localhost:8080/bookstore/";
         Client client = ClientBuilder.newClient();
+        // register a custom reader
         client.register(new BookReader());
         Response r = client.target(address)
             .path("book")
             .request("application/xml")
             .get();
         Book book = r.readEntity(Book.class);
+        
+        System.out.println(r.getStatus());
         System.out.println(book.getName());
     }
     
@@ -52,10 +62,12 @@ public class ClientApi {
         String address = "http://localhost:8080/bookstore/";
         Client client = ClientBuilder.newClient();
         try {
+        	// JSON entity
         	Entity<Book> jsonEntity = Entity.json(new Book("jaxrs", 1L));
-            Future<Book> f = client.target(address).request("application/json")
-               .async()
-               .post(jsonEntity, Book.class);
+        	// AsyncInvoker
+        	AsyncInvoker async = client.target(address).request("application/json").async();
+            // Future
+        	Future<Book> f = async.post(jsonEntity, Book.class);
             System.out.println(f.get().getName());
         } catch (ClientErrorException ex) {
             // 400-500
@@ -73,6 +85,8 @@ public class ClientApi {
         Client client = ClientBuilder.newClient();
         
         Entity<Book> jsonEntity = Entity.json(new Book("jaxrs", 1L));
+        
+        // Get asynchronous notifications with InvocationCallback
         client.target(address).request("application/json")
            .async()
            .post(jsonEntity, 

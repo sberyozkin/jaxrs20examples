@@ -41,7 +41,8 @@ public class ServerInOutFilter implements ContainerRequestFilter,
     @Override
     public void filter(ContainerRequestContext in) throws IOException {
         if (in.getSecurityContext().getUserPrincipal() == null) {
-            in.abortWith(Response.seeOther(getSsoIdpAddress()).build());
+            // abort the request
+        	in.abortWith(Response.seeOther(getSsoIdpAddress()).build());
             return;
         }
         InputStream is = in.getEntityStream();

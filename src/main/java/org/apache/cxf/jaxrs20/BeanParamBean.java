@@ -14,27 +14,29 @@ public class BeanParamBean {
     
     private long id;
     private String name;
-    public long getId() {
-        return id;
-    }
+    
     @FormParam("id")
     public void setId(long id) {
         this.id = id;
     }
-    public String getName() {
-        return name;
+    public long getId() {
+        return id;
     }
+    
     @FormParam("name")
     public void setName(String name) {
         this.name = name;
     }
-    public UriInfo getUriInfo() {
-        return uriInfo;
+    public String getName() {
+        return name;
     }
+    
     @Context
     public void setUriInfo(UriInfo uriInfo) {
         this.uriInfo = uriInfo;
     }
-    
+    public UriInfo getUriInfo() {
+        return uriInfo;
+    }
     
 }

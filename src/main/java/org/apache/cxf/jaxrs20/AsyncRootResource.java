@@ -24,8 +24,10 @@ import javax.ws.rs.core.Response;
  */
 @Path("/root")
 public class AsyncRootResource {
-    private Map<Long, AsyncResponse> asyncs = new ConcurrentHashMap<Long, AsyncResponse>();
-    private Map<Long, Book> books = new ConcurrentHashMap<Long, Book>();
+    // Pending AsyncResponses 
+	private Map<Long, AsyncResponse> asyncs = new ConcurrentHashMap<Long, AsyncResponse>();
+    // List of Books
+	private Map<Long, Book> books = new ConcurrentHashMap<Long, Book>();
     
     /**
      * The invocation will be resumed immediately if Book is available.
@@ -44,13 +46,16 @@ public class AsyncRootResource {
             asyncs.put(id, async);
         }
     }
+    
     @POST
     @Path("/book/{id}/resume")
     @Consumes("application/xml")
     public Response addBookResume(Book book) {
         books.put(book.getId(), book);
+        // Check if there is a pending AsyncResponse expecting this Book
         AsyncResponse async = asyncs.remove(book.getId());
         if (async != null) {
+        	// let it pick the expected book
             async.resume(book);
         }
         return Response.status(201).build();
@@ -65,16 +70,18 @@ public class AsyncRootResource {
     @Path("/book/{id}/timeout")
     public void getBookWithTimeout(@Suspended AsyncResponse async,
                                    @PathParam("id") long id) {
+    	// Set 2 sec timeout and register TimeoutHandler
         TimeoutHandlerImpl handler = new TimeoutHandlerImpl(id);
         async.register(handler);
         async.setTimeout(2000, TimeUnit.MILLISECONDS);
+        // start asynchronous job to get the book 
         retrieveBookFromRemoteStorage(handler);
     }
     
-    private void retrieveBookFromRemoteStorage(TimeoutHandlerImpl handler) {
+    private void retrieveBookFromRemoteStorage(final TimeoutHandlerImpl handler) {
         // start a worker thread to retrieve a Book
         // update the books map when ready, or if not found - 
-        // set the status on the handler
+        // set a 'notAvailable' status on the handler
     }
     
     public class TimeoutHandlerImpl implements TimeoutHandler {
@@ -89,17 +96,21 @@ public class AsyncRootResource {
         }
         
         @Override
+        // This method is invoked after the last timeout has expired
         public void handleTimeout(AsyncResponse asyncResponse) {
-            if (notAvailable) {
-                asyncResponse.resume(new NotFoundException());
-                return;
-            }
-            
+        	
             Book book = books.get(id);
             if (book == null) {
+            	// if Book is known to be not available - return 404
+                if (notAvailable) {
+                    asyncResponse.resume(new NotFoundException());
+                    return;
+                }
                 if (alreadyWaitedFor.addAndGet(2) <= MAX_WAIT_TIME_SEC) {
+                	// still within the limits - do another timeout
                     asyncResponse.setTimeout(2000, TimeUnit.SECONDS);
                 } else {
+                	// cancel the request and ask the client to retry in 10 secs
                     asyncResponse.cancel(10);
                 }
             } else {

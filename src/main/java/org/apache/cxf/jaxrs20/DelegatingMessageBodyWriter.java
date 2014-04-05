@@ -14,8 +14,8 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Providers;
 
 /**
- * Simple Delegating writer. It depends on the injected Provider context to find 
- * the specific writer and delegate to it 
+ * Simple Delegating writer. It depends on the injected Providers context 
+ * to find the specific writer and delegate to it 
  * @author sberyozkin
  *
  */

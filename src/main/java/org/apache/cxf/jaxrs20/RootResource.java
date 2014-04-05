@@ -27,6 +27,7 @@ import javax.ws.rs.core.UriInfo;
  * @author sberyozkin
  *
  */
+
 @Path("/root")
 public class RootResource {
     private Map<Long, Book> books = new ConcurrentHashMap<Long, Book>();
@@ -34,6 +35,8 @@ public class RootResource {
     @Context
     private UriInfo uriInfo;
     
+    // GET /root/1, /root/2, etc
+    // Accept: application/xml
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
@@ -44,7 +47,9 @@ public class RootResource {
     @GET
     @Path("search")
     @Produces({MediaType.APPLICATION_XML})
-    public List<Book> findMatchingBooks(@QueryParam("name") @DefaultValue("jaxrs") String name) {
+    public List<Book> findMatchingBooks(@QueryParam("name") 
+                                        @DefaultValue("jaxrs") 
+                                        String name) {
         List<Book> list = new LinkedList<Book>();
         for (Book b : books.values()) {
             if (b.getName().contains(name)) {
@@ -61,6 +66,8 @@ public class RootResource {
         return books.get(id.getId()).getName();
     }
     
+    // POST /root
+    // Content-Type: text/plain
     @POST
     @Consumes({MediaType.TEXT_PLAIN})
     public Response addBook(String name) {
@@ -71,12 +78,15 @@ public class RootResource {
         return Response.created(newBookURI).build();
     }
     
-    @Path("sub")
+    @Path("subresource")
     public SubResource getSub() {
         return new SubResource(); 
     }
     
     public class SubResource {
+    	
+    	// PUT /root/sub
+    	// Content-Type: application/x-www-form-urlencoded
         @PUT
         @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
         public void updateBook(@BeanParam BeanParamBean bean) {
@@ -91,6 +101,7 @@ public class RootResource {
         public BookId() {
             
         }
+        //This constructor will be used to create BookId
         public BookId(String str) {
             id = Long.valueOf(str);
         }
