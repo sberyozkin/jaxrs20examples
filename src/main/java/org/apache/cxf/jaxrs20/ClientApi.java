@@ -23,6 +23,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.MessageBodyReader;
 
+import org.apache.cxf.jaxrs20.model.Book;
+
 /**
  * Client API examples
  * @author sberyozkin

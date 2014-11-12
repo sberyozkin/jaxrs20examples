@@ -19,22 +19,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.cxf.jaxrs20.model.Book;
+
 /**
- * Typical JAX-RS Resource which demonstrates how Request context
+ * Advanced JAX-RS Resource which demonstrates how Request context
  * can be used to support conditional GET and StreamingOutput - streaming writes
  * 
- * Note: it has the same Path as RootResource: JAX-RS 2.0 ensures no ambiguity
- * exists in this case.
- * 
- * It can have the global global or filters with @ServerInOutFilter.Filtered name binding
- * bound to all of its methods (JAX-RS 2.0)
- * 
- * @author sberyozkin
- *
  */
-@Path("/root")
-@ServerInOutFilter.Filtered
-public class RootResource2 {
+@Path("/advanced")
+public class JaxrsAdvancedResource {
     // Map of ETags, key - is the Book id
 	private Map<Long, EntityTag> etags = new ConcurrentHashMap<Long, EntityTag>();
     // Map of Books

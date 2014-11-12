@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -22,20 +22,22 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.cxf.jaxrs20.model.Book;
+
 /**
- * Typical JAX-RS Resource.
+ * Basic JAX-RS Resource.
  * @author sberyozkin
  *
  */
 
-@Path("/root")
-public class RootResource {
+@Path("/basic")
+public class JaxrsBasicResource {
     private Map<Long, Book> books = new ConcurrentHashMap<Long, Book>();
     
     @Context
     private UriInfo uriInfo;
     
-    // GET /root/1, /root/2, etc
+    // GET /basic/1, /basic/2, etc
     // Accept: application/xml
     @GET
     @Path("{id}")
@@ -66,7 +68,7 @@ public class RootResource {
         return books.get(id.getId()).getName();
     }
     
-    // POST /root
+    // POST /basic
     // Content-Type: text/plain
     @POST
     @Consumes({MediaType.TEXT_PLAIN})
@@ -85,12 +87,12 @@ public class RootResource {
     
     public class SubResource {
     	
-    	// PUT /root/sub
+    	// PUT /basic/sub
     	// Content-Type: application/x-www-form-urlencoded
         @PUT
         @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
-        public void updateBook(@BeanParam BeanParamBean bean) {
-            books.get(bean.getId()).setName(bean.getName());
+        public void updateBook(@FormParam("id") String id, @FormParam("name") String name) {
+            books.get(id).setName(name);
         }
     }
     

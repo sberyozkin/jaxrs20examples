@@ -17,6 +17,8 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.jaxrs20.model.Book;
+
 /**
  * ServerInOutFilter is a server in/out filter.
  * It will be bound only to those resource methods which have the 

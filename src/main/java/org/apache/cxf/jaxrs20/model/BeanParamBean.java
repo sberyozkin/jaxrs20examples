@@ -1,4 +1,4 @@
-package org.apache.cxf.jaxrs20;
+package org.apache.cxf.jaxrs20.model;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Context;

@@ -15,7 +15,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.container.TimeoutHandler;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.apache.cxf.jaxrs20.model.BeanParamBean;
+import org.apache.cxf.jaxrs20.model.Book;
 
 /**
  * Root resource which supports asynchronous/suspended invocations
@@ -23,7 +27,7 @@ import javax.ws.rs.core.Response;
  *
  */
 @Path("/root")
-public class AsyncRootResource {
+public class Jaxrs20AsyncResource {
     // Pending AsyncResponses 
 	private Map<Long, AsyncResponse> asyncs = new ConcurrentHashMap<Long, AsyncResponse>();
     // List of Books
@@ -59,6 +63,13 @@ public class AsyncRootResource {
             async.resume(book);
         }
         return Response.status(201).build();
+    }
+    
+    @POST
+    @Path("/book/{id}/resume")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response addBookFromFormResume(BeanParamBean formBean) {
+        return addBookResume(new Book(formBean.getName(), formBean.getId()));
     }
     
     /**

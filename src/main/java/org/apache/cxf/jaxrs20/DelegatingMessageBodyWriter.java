@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 import javax.ws.rs.ext.Providers;
 
 /**
@@ -19,6 +20,7 @@ import javax.ws.rs.ext.Providers;
  * @author sberyozkin
  *
  */
+@Provider
 public class DelegatingMessageBodyWriter<T> implements MessageBodyWriter<T> {
 
     @Context

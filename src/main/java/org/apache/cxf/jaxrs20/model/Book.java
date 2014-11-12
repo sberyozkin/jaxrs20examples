@@ -1,4 +1,4 @@
-package org.apache.cxf.jaxrs20;
+package org.apache.cxf.jaxrs20.model;
 
 /**
  * Basic application bean
