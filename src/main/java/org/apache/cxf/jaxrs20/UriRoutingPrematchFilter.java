@@ -12,16 +12,18 @@ import javax.ws.rs.container.PreMatching;
 /**
  * This server filter is run before the selection is done and
  * it updates the request URI.
- * For example, one can do it to get the request dispatched to the right method.
  * @author sberyozkin
  *
  */
 @PreMatching
 @Priority(Priorities.USER)
-public class PrematchingFilter implements ContainerRequestFilter {
+public class UriRoutingPrematchFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext context) throws IOException {
-        context.setRequestUri(URI.create("/base/uri"));
+    	URI uri = context.getUriInfo().getRequestUri();
+    	if (uri.getPath().equals("/v0/basic")) {
+            context.setRequestUri(URI.create("/v1/basic"));
+    	}
     }
 }

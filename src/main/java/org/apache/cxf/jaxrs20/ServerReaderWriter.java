@@ -21,8 +21,7 @@ public class ServerReaderWriter implements WriterInterceptor, ReaderInterceptor 
     	throws IOException, WebApplicationException {
         
     	if (MediaType.APPLICATION_ATOM_XML_TYPE.equals(ct.getMediaType())) {
-        	// invoke the next reader interceptor
-            return ct.proceed();
+        	return ct.proceed();
         } else {
         	// block reading the stream
         	return null;

@@ -13,10 +13,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.CompletionCallback;
+import javax.ws.rs.container.ConnectionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.container.TimeoutHandler;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 
 import org.apache.cxf.jaxrs20.model.BeanParamBean;
 import org.apache.cxf.jaxrs20.model.Book;
@@ -26,12 +30,15 @@ import org.apache.cxf.jaxrs20.model.Book;
  * @author sberyozkin
  *
  */
-@Path("/root")
+@Path("/async")
+@ServerInOutFilter.Filtered
 public class Jaxrs20AsyncResource {
     // Pending AsyncResponses 
 	private Map<Long, AsyncResponse> asyncs = new ConcurrentHashMap<Long, AsyncResponse>();
     // List of Books
 	private Map<Long, Book> books = new ConcurrentHashMap<Long, Book>();
+	@Context
+	private SecurityContext securityContext;
     
     /**
      * The invocation will be resumed immediately if Book is available.
@@ -47,6 +54,8 @@ public class Jaxrs20AsyncResource {
         if (book != null) {
             async.resume(book);
         } else {
+        	String userName = securityContext.getUserPrincipal().getName();
+        	async.register(new ResponseCallbackImpl(userName, id));
             asyncs.put(id, async);
         }
     }
@@ -133,6 +142,26 @@ public class Jaxrs20AsyncResource {
         public void setNotAvailable(boolean notAvailable) {
             this.notAvailable = notAvailable;
         }
+        
+    }
+    
+    private class ResponseCallbackImpl implements CompletionCallback, ConnectionCallback {
+    	private long bookId;
+    	private String userName;
+        public ResponseCallbackImpl(String userName, long bookId) {
+        	this.bookId = bookId;
+        }
+        @Override
+        public void onComplete(Throwable t) {
+        	if (t != null) {
+                System.out.println(String.format("The server failed to send a book %d back to the client %s, cause is: %s", 
+        	                       bookId, userName, t.getCause().getMessage()));
+        	}
+        }
+		@Override
+		public void onDisconnect(AsyncResponse disconnected) {
+			System.out.println(String.format("The book %d can not be delivered, client %s disconnected", bookId, userName));
+		}
         
     }
 }
