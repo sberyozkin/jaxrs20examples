@@ -46,6 +46,8 @@ public class JaxrsBasicResource {
         return books.get(id);
     }
     
+    // GET /basic/search
+    // Accept: application/xml
     @GET
     @Path("search")
     @Produces({MediaType.APPLICATION_XML})
@@ -61,6 +63,8 @@ public class JaxrsBasicResource {
         return list;
     }
     
+    // GET /basic/1/name, /basic/2/name, etc 
+    // Accept: text/plain
     @GET
     @Path("{id}/name")
     @Produces({MediaType.TEXT_PLAIN})
@@ -73,13 +77,18 @@ public class JaxrsBasicResource {
     @POST
     @Consumes({MediaType.TEXT_PLAIN})
     public Response addBook(String name) {
-        Book newBook = new Book(name, books.size() + 1);
+        // Create a new Book resource
+    	Book newBook = new Book(name, books.size() + 1);
         books.put(newBook.getId(), newBook);
+        
+        // Return a Location link pointing to a new resource
         UriBuilder ub = uriInfo.getAbsolutePathBuilder();
         URI newBookURI = ub.path(Long.toString(newBook.getId())).build();
         return Response.created(newBookURI).build();
     }
     
+    // This method has no HTTP Method annotation, only @Path
+    // hence this is a sub-resource locator
     @Path("subresource")
     public SubResource getSub() {
         return new SubResource(); 
@@ -87,7 +96,7 @@ public class JaxrsBasicResource {
     
     public class SubResource {
     	
-    	// PUT /basic/sub
+    	// PUT /basic/subresource
     	// Content-Type: application/x-www-form-urlencoded
         @PUT
         @Consumes({MediaType.APPLICATION_FORM_URLENCODED})

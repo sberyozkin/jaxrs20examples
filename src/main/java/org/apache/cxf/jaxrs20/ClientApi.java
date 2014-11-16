@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.concurrent.Future;
 
 import javax.ws.rs.ClientErrorException;
@@ -18,6 +19,7 @@ import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.client.SyncInvoker;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -60,8 +62,8 @@ public class ClientApi {
         System.out.println(book.getName());
     }
     
-    public void postGetBookAsync() throws Exception {
-        String address = "http://localhost:8080/bookstore/";
+    public void postGetBooksAsync() throws Exception {
+        String address = "http://localhost:8080/bookstore/books";
         Client client = ClientBuilder.newClient();
         try {
         	// JSON entity
@@ -69,8 +71,11 @@ public class ClientApi {
         	// AsyncInvoker
         	AsyncInvoker async = client.target(address).request("application/json").async();
             // Future
-        	Future<Book> f = async.post(jsonEntity, Book.class);
-            System.out.println(f.get().getName());
+        	Future<List<Book>> f = async.post(jsonEntity, 
+        			                          new GenericType<List<Book>>(){});
+        	for (Book b : f.get()) {
+                System.out.println(b.getName());
+        	}
         } catch (ClientErrorException ex) {
             // 400-500
         } catch (ServerErrorException ex) {
@@ -83,7 +88,7 @@ public class ClientApi {
     }
     
     public void postGetBookAsyncHandler() throws Exception {
-        String address = "http://localhost:8080/bookstore/";
+        String address = "http://localhost:8080/bookstore/book";
         Client client = ClientBuilder.newClient();
         
         Entity<Book> jsonEntity = Entity.json(new Book("jaxrs", 1L));
@@ -113,7 +118,8 @@ public class ClientApi {
     public void run() throws Exception {
         getBook();
         getBookResponse();
-        postGetBookAsync();
+        postGetBooksAsync();
+        postGetBookAsyncHandler();
     }
     
     private static class BookReader implements MessageBodyReader<Book> {

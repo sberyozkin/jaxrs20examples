@@ -37,6 +37,12 @@ public class JaxrsAdvancedResource {
     @Context
     private Request request;
     
+    public JaxrsAdvancedResource() {
+    	books.put(5L, new Book("JAXRS 2.0 At ApacheCon", 5L));
+    }
+    
+    //GET /advanced/1, /advanced/2, etc
+    // Accept: application/json
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_JSON})
@@ -49,8 +55,10 @@ public class JaxrsAdvancedResource {
             etags.put(id, tag);
             return Response.ok(streamBook).tag(tag).build();
         } else {
-        	// We have a tag, evaluate if the book has been updated recently
-            ResponseBuilder r = request.evaluatePreconditions(tag);
+        	// We have a tag, evaluate if the book has been updated per the 
+        	// conditional headers requirements:
+        	// If-Non-Match, If-Match, If-Modified-Since, If-Unmodified-Since
+        	ResponseBuilder r = request.evaluatePreconditions(tag);
             if (r == null) {
             	// The book has been updated, return a new representation
                 return Response.ok(doGetStreamingBook(id)).tag(tag).build();
@@ -88,22 +96,22 @@ public class JaxrsAdvancedResource {
         @Override
         public void write(OutputStream os) throws IOException, WebApplicationException {
         	// The process of writing the book is supposed to be long and is 
-        	// split into 4 writes. It can be done asynchronously
+        	// split into 4 writes.
         	
         	// Write an opening tag
         	os.write("{".getBytes());
-        	
+        	os.flush();
         	// Get and write ID
             String bookIdJson = "\"id\":" + book.getId();
             os.write(bookIdJson.getBytes());
-            
+            os.flush();
             // Write a separator
             os.write(",".getBytes());
-            
+            os.flush();
             // Get and write Name
-            String bookIdName = "\"id\":" + book.getId();
+            String bookIdName = "\"name\":\"" + book.getName() + "\"";
             os.write(bookIdName.getBytes());
-                                    
+            os.flush();
             // Write a closing tag
             os.write("}".getBytes());
         }
@@ -111,4 +119,5 @@ public class JaxrsAdvancedResource {
             return book;
         }
     }
+    
 }

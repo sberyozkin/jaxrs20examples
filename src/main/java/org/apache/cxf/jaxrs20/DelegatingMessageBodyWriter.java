@@ -21,6 +21,7 @@ import javax.ws.rs.ext.Providers;
  *
  */
 @Provider
+// Example, Apache CXF MultipartProvider is using the provider delegation
 public class DelegatingMessageBodyWriter<T> implements MessageBodyWriter<T> {
 
     @Context
